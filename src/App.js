@@ -148,6 +148,11 @@ function App() {
     return date.toLocaleString(undefined, options);
   }
 
+  function formatPrice(price) {
+    const absPrice = Math.abs(price).toFixed(2);
+    return price < 0 ? `-$${absPrice}` : `$${absPrice}`;
+  }
+
   let balance = 0;
   for (const transaction of transactions) {
     balance += transaction.price;
@@ -215,7 +220,7 @@ function App() {
               </div>
               <div className='right'>
                 <div className={'price ' + (transaction.price < 0 ? 'red' : 'green')}>
-                  {transaction.price}
+                  {formatPrice(transaction.price)}
                 </div>
                 <div className='datetime'>{formatDateTime(transaction.datetime)}</div>
                 <button onClick={() => initiateEdit(transaction)}>Edit</button>

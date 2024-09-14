@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-/* Existing CSS Styles Below */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -40,8 +41,9 @@ form input {
   background-color: transparent;
   color: #ddd;
   border: 2px solid #30313d;
-  padding: 2px 5px;
+  padding: 8px 10px;
   border-radius: 7px;
+  font-size: 1rem;
 }
 
 form input[type="datetime-local"] {
@@ -50,8 +52,8 @@ form input[type="datetime-local"] {
 
 form div.basics {
   display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 form button {
@@ -61,6 +63,12 @@ form button {
   border-radius: 7px;
   padding: 5px;
   background-color: #ddd;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+form div.description {
+  margin-bottom: 10px; /* Added margin to description div */
 }
 
 div.transactions {
