@@ -1,40 +1,81 @@
 
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
   const [name, setName] = useState('');
   const [datetime, setDatetime] = useState('');
   const [description, setDescription] = useState('');
+  const [transactions, setTransactions] = useState([]);
 
-  function addNewTransaction(e) {
+  useEffect(() => {
+    getTransactions().then(setTransactions);
+  }, [])
+
+  function formatDateTime(datetimeStr) {
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    const date = new Date(datetimeStr);
+    return date.toLocaleString(undefined, options);
+  }
+
+  async function getTransactions() {
+    const url = process.env.REACT_APP_API_URL + '/transactions';
+    const response = await fetch(url);
+    return await response.json();
+  }
+
+  async function addNewTransaction(e) {
     e.preventDefault();
     const url = process.env.REACT_APP_API_URL + '/transaction';
-
-    const price = name.split(' ')[0];
-
-
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        price,
-        name: name.substring(price.length + 1),
-        datetime,
-        description})
-    }).then(res => {
-      res.json().then(json => {
-        setName('');
-        setDatetime('');
-        setDescription('');
-        console.log('result',json);
+    const price = parseFloat(name.split(' ')[0]);
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          price,
+          name: name.substring(price.toString().length + 1),
+          datetime,
+          description,
+        }),
       });
-    });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server Error:', errorData);
+        return;
+      }
+  
+      const newTransaction = await response.json();
+      setTransactions((prevTransactions) => [...prevTransactions, newTransaction]);
+      setName('');
+      setDatetime('');
+      setDescription('');
+      console.log('Result:', newTransaction);
+    } catch (error) {
+      console.error('Fetch Error:', error);
+    }
   }
+
+  let balance = 0;
+  for (const transaction of transactions) {
+    balance += transaction.price;
+  }
+
+  balance = balance.toFixed(2);
+  const cents = balance.split('.')[1];
+  balance = balance.split('.')[0];
 
   return (
     <main>
-      <h1>$400<span>.00</span></h1>
+      <h1>${balance}<span>.{cents}</span></h1>
       <form onSubmit={addNewTransaction}>
         <div className='basics'>
           <input type="text" 
@@ -55,38 +96,20 @@ function App() {
       </form>
 
       <div className='transactions'>
-        <div className='transaction'>
-          <div className='left'>
-            <div className='name'>New TV</div>
-            <div className='description'>Needed new TV</div>
+        {transactions.length > 0 && transactions.map(transaction => (
+          <div className='transaction' key={transaction._id}>
+            <div className='left'>
+              <div className='name'>{transaction.name}</div>
+              <div className='description'>{transaction.description}</div>
+            </div>
+            <div className='right'>
+              <div className={'price ' + (transaction.price < 0 ? 'red' : 'green')}>
+                {transaction.price}
+              </div>
+              <div className='datetime'>{formatDateTime(transaction.datetime)}</div>
           </div>
-          <div className='right'>
-            <div className='price red'>-$200</div>
-            <div className='datetime'>2024-01-01 12:00</div>
           </div>
-        </div>
-
-        <div className='transaction'>
-          <div className='left'>
-            <div className='name'>Salary</div>
-            <div className='description'>Needed new TV</div>
-          </div>
-          <div className='right'>
-            <div className='price green'>+$700</div>
-            <div className='datetime'>2024-01-01 12:00</div>
-          </div>
-        </div>
-
-        <div className='transaction'>
-          <div className='left'>
-            <div className='name red'>New Shoes</div>
-            <div className='description'>Needed new TV</div>
-          </div>
-          <div className='right'>
-            <div className='price red'>-$200</div>
-            <div className='datetime'>2024-01-01 12:00</div>
-          </div>
-        </div>
+        ))}
       </div>
     </main>
   );
