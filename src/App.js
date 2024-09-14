@@ -169,7 +169,7 @@ function App() {
             type='text'
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={'+200 TV'}
+            placeholder={'+200 Salary'}
             required
           />
           <input
@@ -184,7 +184,7 @@ function App() {
             type='text'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={'Description'}
+            placeholder={'Got monthly salary'}
             required
           />
         </div>
